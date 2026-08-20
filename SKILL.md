@@ -79,6 +79,7 @@ one.
 | **How much to bet** | [references/quant/risk/position-sizing.md](references/quant/risk/position-sizing.md) |
 | **Risk controls, limits, kill switches** | [references/quant/risk/risk-management.md](references/quant/risk/risk-management.md) + the venue `risk-controls.md` |
 | Backtesting, overfitting, is this result real | [references/quant/validation/](references/quant/validation/backtesting.md) |
+| **Why did this fail / what goes wrong** | [references/quant/failure-modes.md](references/quant/failure-modes.md) |
 | "Find me a trade" / "what should I trade" | [references/quant/README.md](references/quant/README.md) — the method, then the relevant venue |
 | Research papers, further reading | [references/quant/references.md](references/quant/references.md) |
 

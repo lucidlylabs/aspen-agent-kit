@@ -60,6 +60,20 @@ Covered in [../execution/order-placement.md](../execution/order-placement.md#mod
 Filling at the close, ignoring spread, constant slippage, assuming limit orders fill, and charging
 maker fees on stops. Each one flatters. Together they can invert a result.
 
+### 4. The simulator rewards something the live system cannot do
+
+A subtler cousin of unrealistic execution, and worth its own entry because it invalidates results
+silently.
+
+If your simulator grants queue position while your live order lifecycle cancels and replaces on
+every small move, the two are not testing the same strategy. The simulator credits passive fills at
+the front of the queue; the live bot sits permanently at the back and receives only the adverse
+fills. A profitable dry-run number is then **worthless, not merely optimistic**.
+
+Ask of any passive-strategy backtest: *what is the simulator rewarding, and can the live
+implementation actually earn it?* More failure shapes of this kind in
+[../failure-modes.md](../failure-modes.md).
+
 ## Validation that actually tests something
 
 **In-sample / out-of-sample split** is the minimum, and it is weak: once you look at the out-of-sample

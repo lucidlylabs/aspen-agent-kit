@@ -108,6 +108,33 @@ constant of order 1. This form appears remarkably consistently across markets an
 working. A strategy with a 10bp edge dies at the size where impact reaches 10bp. That size is your
 capacity, and knowing it is the difference between a strategy and a business.
 
+### Capacity, measured rather than assumed
+
+The square-root law is not just theory you can cite — it shows up in reconstructions of live books.
+One such reconstruction found realised alpha dollars scaling as approximately **AUM^0.52**
+(R² ≈ 0.45): doubling capital produced about **1.44×** the alpha dollars, so return on capital
+decayed as **AUM^−0.48**.
+
+The practical reading: a strategy earning several percent per period at small size can be under one
+percent at 50× the size, with the difference going to impact. **The edge is real and does not
+scale.** Measure your own curve — regress realised alpha dollars against deployed capital over time —
+rather than assuming capacity is far away.
+
+## Markout: the rigorous way to measure maker edge
+
+Effective-minus-realised spread is the concept; **markout** is how practitioners actually compute it.
+
+1. Identify your passive fills (on venues that do not flag aggressor side, infer them from
+   best-level size depletion).
+2. For each fill, compute the **signed mid move at a series of horizons** after it — 0s, 1s, 10s,
+   60s, 300s.
+3. Plot the curve. A profitable maker's markout flattens or turns favourable; an adversely selected
+   one keeps sloping against the fill.
+
+The horizon curve is the point: it shows you *how fast* adverse selection erodes your capture, which
+tells you how quickly you need to flatten. On liquid perps that erosion happens **within seconds**,
+which is why passive strategies there need fast flattening rather than patient inventory.
+
 ## Depth and the cost of liquidity
 
 - **Depth at N basis points** — cumulative size within N bp of mid. The direct answer to "can I trade

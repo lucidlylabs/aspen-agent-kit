@@ -27,6 +27,34 @@ buying just before price falls and selling just before it rises. The spread must
 **Who is on the other side?** Everyone who needs immediacy. That demand is permanent, which is why
 market making is a real business rather than an anomaly.
 
+## First, check the arithmetic gate
+
+Before any of the modelling below, run one comparison:
+
+```
+median top-of-book spread   vs.   2 × your maker fee
+```
+
+If the fee side is larger, spread capture is impossible at any level of skill. This is not a tuning
+problem, it is a sign problem.
+
+**The measured reality on liquid crypto perps:** median top-of-book spreads run around
+**0.13–0.16 basis points**, and realised gross capture per round trip is smaller still — of order
+**0.07–0.12bp** once you account for which fills you actually get. A standard maker fee of **1.5bp**
+is therefore roughly **ten times the entire spread**, paid twice.
+
+So on the most liquid markets, classic two-sided spread capture requires a **zero-maker-fee tier at
+minimum, and realistically rebates.** Below that, every round trip loses.
+
+Two consequences worth sitting with:
+
+- **The liquid market you have heard of is the one you cannot compete in.** Wide spreads in thin,
+  neglected markets are not a warning sign — they are the compensation, and they are where a small
+  participant has a real chance.
+- **A market-making book can lose money on its market-making leg and still look profitable**, if
+  directional beta or carry is quietly covering it. Attribute per sleeve before concluding your
+  quoting works. See [../failure-modes.md](../failure-modes.md#5-attribution-failures).
+
 ## The reference model
 
 Avellaneda & Stoikov (2008) give the standard framework. Two components:

@@ -84,6 +84,7 @@ manufacture overfitting. The indicator is the last thing you choose, not the fir
 3. [execution/order-placement.md](execution/order-placement.md) — how orders really fill
 4. [risk/position-sizing.md](risk/position-sizing.md) — how much to bet
 5. [validation/backtesting.md](validation/backtesting.md) — how to not fool yourself
+6. [failure-modes.md](failure-modes.md) — what goes wrong, and how to see it coming
 
 **Directory map:**
 
@@ -95,6 +96,7 @@ manufacture overfitting. The indicator is the last thing you choose, not the fir
 | [execution/](execution/) | Getting filled at a price you modelled |
 | [risk/](risk/) | Sizing and portfolio-level control |
 | [validation/](validation/) | Backtesting, and evaluating whether a result is real |
+| [failure-modes.md](failure-modes.md) | **What actually goes wrong** — the catalogue of ways strategies die, with the numbers that decide it |
 | [references.md](references.md) | The literature this section is built on |
 
 ## Combining instruments across venues

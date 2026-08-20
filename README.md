@@ -33,6 +33,7 @@ This kit is **the layer above that** — what a platform never documents about i
 | **Fees** | All three venues' schedules, and — more importantly — how fee structure decides which strategies are viable at all |
 | **Risk** | Position sizing, liquidation math, portfolio limits, and the operational controls that must exist in code |
 | **Validation** | Backtesting that rejects rather than confirms; deflated Sharpe; why strategies fail live |
+| **Failure modes** | A catalogue of what actually goes wrong — the arithmetic gates, the research artifacts that fabricate edge, the execution bugs that get you picked off |
 
 The goal: **an agent with this kit should be a competent quantitative trader on these venues**, not
 merely connected to them.
@@ -80,7 +81,7 @@ to do with it.
 ```
 ├── SKILL.md                          # agent entry point, routing, safety rules
 ├── references/
-│   ├── CATALOG.md                    # generated index of all 40 cards
+│   ├── CATALOG.md                    # generated index of all 41 cards
 │   ├── card-format.md                # frontmatter & conventions
 │   ├── perpetuals/                   # Hyperliquid, Lighter — venue, data, fees, risk
 │   ├── prediction-markets/           # Polymarket, HIP-4 — venue, data, fees, risk

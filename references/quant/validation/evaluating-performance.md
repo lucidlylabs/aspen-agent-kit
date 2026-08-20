@@ -30,6 +30,13 @@ operational risk; 1–2 is a genuinely good systematic strategy; above 3 sustain
 high-frequency, a very short sample, or a bug. **A backtest Sharpe above 3 should increase your
 suspicion, not your confidence.**
 
+**Marking frequency can manufacture a Sharpe outright.** A product that marks only at period
+boundaries can report an annualised Sharpe near **19** while a fill-level reconstruction of the same
+book shows intra-period drawdowns far larger than that volatility could produce. Nothing was
+falsified; the reported series simply never sampled the risk. **Before comparing any Sharpe, ask at
+what frequency the underlying series was marked** — a number computed from monthly or epoch-boundary
+marks is not comparable to one computed from daily marks of the same strategy.
+
 **Sortino** — same, but only downside deviation in the denominator. Better for asymmetric strategies.
 
 **Calmar / MAR** = annualised return / maximum drawdown. Crude, and closest to what actually
