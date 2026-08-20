@@ -1,117 +1,72 @@
+---
+title: Card format
+triggers: card format, frontmatter, how are cards structured, schema
+---
+
 # Card format
 
-Every card is a Markdown file with YAML frontmatter. The cards were written
-for the [Aspen](https://useaspen.ai) engine, so a few frontmatter fields refer
-to Aspen internals; this file says exactly what each field means, and what to
-do with the Aspen-specific ones when you are *not* running inside Aspen.
+Every card is Markdown with YAML frontmatter. The schema is deliberately small.
 
-## Protocol cards (`references/protocols/`)
-
-One card per protocol. Example frontmatter:
+## Frontmatter fields
 
 ```yaml
 ---
-protocol: aave-v3
-category: credit          # dex | credit | yield | staking | perp | bridge | vault | prediction | options | other
-chains: [1, 8453, 42161]  # EVM chain ids the card covers (1 = Ethereum, 8453 = Base, 42161 = Arbitrum, …)
-archetype: lend_borrow    # the interaction family this protocol belongs to
-executor: knowledge-only  # see below
-aliases:                  # natural-language phrases that should route to this card
-  - "supply USDC to aave"
-roles: [pool]             # named contract roles the actions reference
-actions: [supply, borrow, repay, withdraw]
-tokens: [USDC, WETH]      # tokens the card's examples assume
+section: perpetuals          # perpetuals | prediction-markets | quant
+group: indicators            # (quant only) data | indicators | strategies | execution | risk | validation
+title: Volatility indicators # human-readable name, used in the catalog
+venue: hyperliquid           # (venue cards only) the venue this describes
+kind: data-sourcing          # (optional) data-sourcing | economics | risk
+docs: https://…              # (venue cards) the official documentation this card defers to
+type: carry                  # (strategy cards) carry | convergence | direction | short-volatility | liquidity-provision | mixed
+triggers: >-
+  natural-language phrases that should route a question to this card
 ---
 ```
 
-Body structure:
+`triggers` is the routing surface: it is what an agent matches a user's question against. Everything
+else is organisational.
 
-- An intro: what the protocol is and its trust/settlement model, from first
-  principles.
-- One `## action: <name>` section per action, each with:
-  - **Function** — the exact contract function or SDK call, with its full
-    signature.
-  - **Contract** — the *role* of the contract the call targets (e.g. role
-    `pool`). Cards never carry addresses; resolve the role's address from the
-    protocol's official docs or a verified registry at time of use.
-  - **Use when** — the intent this action serves.
-  - `### params` — every parameter, its scaling/decimals rules, and required
-    values.
-  - `### pitfalls` — the mistakes that revert or lose money. Read all of them.
-  - `### safety` — the invariants and refusal rules. These are binding.
+## The three sections
 
-### Aspen-specific fields on protocol cards
+**`references/perpetuals/`** and **`references/prediction-markets/`** — venue knowledge. One card per
+venue, plus a `-data.md` card for its data surfaces, plus shared `fees.md` and `risk-controls.md` for
+the section.
 
-- `executor: knowledge-only | live` — whether Aspen's engine has a live
-  executor for this protocol. Outside Aspen this is purely informational; the
-  card's knowledge is valid either way.
-- `roles:` — Aspen resolves contract addresses from an onchain registry keyed
-  by `category/protocol/role`. Outside Aspen, treat a role as "the contract
-  the official docs call X", and resolve its address yourself.
-- Mentions of **"the vault"** mean the account under management — the wallet
-  or smart account whose funds the agent controls. Every recipient-style
-  parameter must point back to it.
+These cards are **deliberately thin on API surface.** The venues document their own endpoints better
+than any copy of them could, and Lighter ships its own agent kit. Each venue card opens with a table
+of official documentation links and covers only what the docs do not: what bites, what it costs, what
+you have to build yourself, and what must be verified live.
 
-## Strategy cards (`references/strategies/`)
+**`references/quant/`** — venue-independent trading knowledge, grouped:
 
-One card per strategy archetype. Example frontmatter:
+| Group | Contents |
+|---|---|
+| `data/` | Reading market data, where to source it, how to validate it |
+| `indicators/` | The indicator toolkit, graded against the research literature |
+| `strategies/` | Strategy archetypes as specifications |
+| `execution/` | Order types, slippage, getting filled |
+| `risk/` | Position sizing, limits, operational controls |
+| `validation/` | Backtesting, performance evaluation |
 
-```yaml
----
-archetype: funding_arb    # canonical strategy id
-triggers: farm the funding spread / delta-neutral funding trade…   # when this archetype applies
-executor: live            # all 25 archetypes run live in Aspen
-gateBlock: funding_carry_above   # the guard block that gates entry
-capability: [perp, statarb]      # engine capabilities the strategy exercises
-promptOrder: 20           # ordering hint when several cards are shown together
-grounding: [funding_direction]   # live data reads the composer must perform first
-defaults: { leverage: 3 } # defaults to OFFER the user, never to assume
-refuse: …                 # asks this archetype must decline (only on some cards)
----
+## Conventions that carry meaning
+
+- **No addresses, no market ids, no contract addresses.** Anywhere. Resolve every identifier from the
+  venue at time of use. This is enforceable and should stay enforced.
+- **Fee tables and rate schedules are snapshots**, always accompanied by an instruction to verify.
+  They are there so an agent can reason about magnitude, not so it can quote them as current.
+- **Indicator cards carry an evidence grade** (A/B/C/D) with the reasoning and a citation. See
+  [quant/indicators/README.md](quant/indicators/README.md#evidence-grading).
+- **Strategy cards always state the mechanism first** — who is on the other side and why they stay —
+  then entry, exit, sizing, and failure modes. A card without a mechanism is not a strategy.
+- **"Must be code, never judgment"** marks decisions that must be deterministic and covered by tests
+  asserting the failure case. These are never delegated to a model at runtime.
+
+## Adding or editing a card
+
+Cards are the source of truth; the catalog is generated.
+
+```bash
+node scripts/build-catalog.mjs
 ```
 
-The body is the exact composition instruction Aspen's planner follows —
-which legs to emit, which guards gate entry and exit, and what the engine
-decides in code rather than letting an LLM choose (direction selection,
-sizing symmetry, sign conventions). A `## Notes` section explains the
-engineering reasoning.
-
-**Outside Aspen**, read a strategy card as a precise specification:
-
-- The *legs* are the positions/orders a sound implementation opens.
-- The *guards* (`gateBlock`, exit guards like `portfolio_pnl_above/below`,
-  `pair_basis_above`) are the entry/exit conditions and risk limits it needs.
-- "Decided in code, never by the LLM" marks the decisions that must be
-  deterministic — implement them as code with tests, not as model judgment.
-- `defaults` are suggestions to surface to the user; sizing and leverage are
-  always the user's call.
-
-## Scanner cards (`references/scanner/`)
-
-The method for finding trades rather than executing them.
-
-```yaml
----
-module: hyperliquid-perps
-instrument: Hyperliquid perpetual futures
-venue: hyperliquid        # or cross, for the method card
-triggers: perp opportunities — funding rates, carry, basis…
----
-```
-
-`scanner.md` is the venue-independent discipline: what counts as an
-opportunity (carry, convergence, or direction — nothing else), the four
-questions every candidate must survive, and how instruments may be combined.
-The per-instrument modules carry that venue's mechanics, screens, and real
-cost figures. Always read `scanner.md` before a per-instrument module.
-
-## Chain id reference
-
-| id | chain | id | chain |
-|---|---|---|---|
-| 1 | Ethereum | 999 | HyperEVM |
-| 10 | Optimism | 5000 | Mantle |
-| 56 | BNB Chain | 8453 | Base |
-| 130 | Unichain | 42161 | Arbitrum |
-| 137 | Polygon | 43114 | Avalanche |
-| 146 | Sonic | 747474 | Katana |
+Keep `triggers` phrased the way a user would actually ask, not the way a taxonomy would file it.

@@ -1,141 +1,118 @@
 # Aspen Agent Kit
 
-DeFi and onchain-trading knowledge for AI agents, distilled from
+Quantitative trading knowledge for AI agents, distilled from
 [Aspen](https://useaspen.ai) — an agent harness for agentic trading.
 
-Install it as a skill and your agent (Claude Code, Cursor, Codex, or anything
-that reads the [agentskills.io](https://agentskills.io) format) gains curated,
-safety-annotated knowledge of **73 DeFi protocols**, **25 executable trading
-strategy archetypes**, and a disciplined **market-scanning method** — the same
-cards Aspen's own engine trades with.
+Install it as a skill and your agent (Claude Code, Cursor, Codex, or anything that reads the
+[agentskills.io](https://agentskills.io) format) gains working knowledge of **perpetual futures** and
+**prediction markets** — not just how to connect to them, but how to trade them.
 
 ```
-"supply half my USDC to Aave and borrow WETH against it — what do I need to watch?"
-"set up a delta-neutral funding trade on ETH"
-"long BTC 10x on Lighter with a stop loss"
-"what looks good right now on Hyperliquid?"
+"where do I get historical funding data for hyperliquid?"
+"is a 15-minute mean reversion strategy on ETH viable at my fee tier?"
+"what does RSI actually tell me, and does it work?"
+"how much should I size this, and where does it liquidate?"
+"why is my backtest better than my live results?"
 ```
 
-## What's inside
+## What this is
 
-| | Count | Covers |
-|---|---|---|
-| **Protocol cards** | 73 | Exact function signatures, parameter scaling, pitfalls that lose money, and binding safety rules — per action, per protocol |
-| **Strategy archetypes** | 25 | Entry/exit guards, sizing rules, and the decisions that must be code, not model judgment |
-| **Scanner method** | 5 cards | What counts as an opportunity (carry, convergence, direction), the four questions that kill bad ideas, per-venue screens |
+**Not a replacement for the venues' own docs or SDKs.** Hyperliquid, Lighter and Polymarket each
+maintain their own API documentation, and Lighter ships its own
+[official agent kit](https://github.com/elliottech/lighter-agent-kit). Those are always more current
+than a third-party copy.
 
-### Protocol coverage
+This kit is **the layer above that** — what a platform never documents about itself:
 
-| Category | Protocols |
+| | What it covers |
 |---|---|
-| DEXs & swap aggregators (20) | Uniswap v2/v3/v4, Curve, Balancer v2, Aerodrome, Velodrome, PancakeSwap v2/v3, SushiSwap v2/v3, Camelot v3, 1inch, 0x, KyberSwap, Odos, Bebop, fly.trade, Sushi (XSwap), Hyperliquid spot |
-| Yield & vaults (14) | Pendle v2, Ethena, Yearn, Convex, Aura, Sky sUSDS, Maker DSR, Syrup (Maple), Ondo USDY/OUSG, Mountain USDM, Origin Ether, Cap, Lucidly |
-| Lending & credit (12) | Aave v3, Morpho Blue, Compound v3, Euler v2, Fluid, Spark, Venus, Moonwell, Radiant v2, crvUSD, LlamaLend, Liquity v2 |
-| Staking & restaking (8) | Lido, Rocket Pool, ether.fi, Renzo, Kelp, Swell, Stader, Frax Ether |
-| Perpetual futures (6) | Hyperliquid perps, Hyperliquid HIP-3 builder markets, Lighter, GMX v2, Gains Network, RiseX |
-| Bridges & cross-chain (5) | Across, CCTP, Hyperlane, Stargate, Bungee |
-| Prediction markets (3) | Polymarket (trading + signals), Hyperliquid HIP-4 outcome markets |
-| Managed vaults (3) | Beefy, MetaMorpho, Morpho Vault v2 |
-| Options & RWA (2) | Derive (options), Ondo tokenized stocks |
+| **Data** | Where market data actually comes from: live feeds, historical archives, what the archives *don't* contain, and how to build the datasets you have to record yourself |
+| **Reading data** | Bars and what they destroy, why time bars are a poor default, returns, stationarity, labelling |
+| **Indicators** | The full toolkit — trend, momentum, volatility, volume and flow, microstructure, funding/basis/OI, prediction-market signals — each **graded A–D against the research literature** |
+| **Strategies** | Eight archetypes as specifications: mechanism, entry, exit, sizing, fee sensitivity, failure modes |
+| **Fees** | All three venues' schedules, and — more importantly — how fee structure decides which strategies are viable at all |
+| **Risk** | Position sizing, liquidation math, portfolio limits, and the operational controls that must exist in code |
+| **Validation** | Backtesting that rejects rather than confirms; deflated Sharpe; why strategies fail live |
 
-The full generated index — every protocol with its chains, actions and tokens,
-every strategy with its triggers — is in
-[references/CATALOG.md](references/CATALOG.md).
+The goal: **an agent with this kit should be a competent quantitative trader on these venues**, not
+merely connected to them.
 
-### Strategy archetypes
+## Venues covered
 
-Funding arbitrage (cross-DEX delta-neutral), cash-and-carry basis, funding
-fade, pair stat-arb, z-score & RSI mean reversion, momentum/trend, Donchian
-breakout with pyramiding, grid trading, market making / volume farming, DCA
-accumulation, relative-strength rotation, slot rotation, risk-parity
-all-weather, market-neutral baskets, macro thesis baskets, tail-risk crisis
-alpha, session windows, session-open drift, orderbook depth skew, chart
-patterns, SMC/market-structure, candle reversal, cross-asset lag catch-up,
-perp TP/SL.
+| Category | Venues |
+|---|---|
+| **Perpetual futures** | Hyperliquid (incl. HIP-3 builder markets and native spot), Lighter, Polymarket Perps |
+| **Prediction markets** | Polymarket, Hyperliquid HIP-4 outcome markets |
+
+## Grounded in the literature
+
+The quant section is built on published research rather than folklore, and says so explicitly —
+including where the evidence is *against* a popular technique. Kyle (1985) and Glosten–Milgrom (1985)
+on why spreads exist; Almgren–Chriss (2000) on execution; Avellaneda–Stoikov (2008) on market making;
+Jegadeesh–Titman (1993) and Moskowitz–Ooi–Pedersen (2012) on momentum; Sullivan–Timmermann–White
+(1999) on why most technical trading results do not survive data-snooping correction;
+Bailey–López de Prado on the deflated Sharpe ratio; Thaler–Ziemba (1988) and Wolfers–Zitzewitz (2004)
+on prediction markets. Full bibliography in
+[references/quant/references.md](references/quant/references.md).
 
 ## Installation
-
-One-liner (installs into the agents it detects; prompts before writing):
 
 ```bash
 git clone https://github.com/lucidlylabs/aspen-agent-kit.git
 cd aspen-agent-kit && ./install.sh
 ```
 
-Manual — the repo *is* the skill; copy or symlink it into your agent's skills
-directory:
+Manual — the repo *is* the skill:
 
 ```bash
-# Claude Code
-ln -s "$(pwd)" ~/.claude/skills/aspen-agent-kit
-
-# Cursor
-ln -s "$(pwd)" ~/.cursor/skills/aspen-agent-kit
-
-# Codex
-ln -s "$(pwd)" ~/.codex/skills/aspen-agent-kit
+ln -s "$(pwd)" ~/.claude/skills/aspen-agent-kit    # Claude Code
+ln -s "$(pwd)" ~/.cursor/skills/aspen-agent-kit    # Cursor
+ln -s "$(pwd)" ~/.codex/skills/aspen-agent-kit     # Codex
 ```
 
-Any agent that supports the agentskills.io format picks up
-[SKILL.md](SKILL.md) as the entry point.
-
-## Usage
-
-Once installed, just talk to your agent. The skill routes protocol questions
-to the matching protocol card, strategy questions to the archetype card, and
-"find me a trade" to the scanner method. Examples:
-
-- *"What's the safe way to lever up wstETH on Aave?"* → `aave-v3.md`: loop
-  mechanics, health-factor buffer rules, the `onBehalfOf` refusal rule.
-- *"Grid bot on SOL between 120 and 160"* → `grid-trading.md`: ladder
-  construction, the guards a sound grid needs, what must be code not vibes.
-- *"Where is funding rich right now?"* → `scanner.md` + the Hyperliquid perps
-  module: how to screen, what the position costs to hold, what kills it.
-
-The kit is **knowledge, not keys**. It contains no signer, no API client and
-no addresses — your agent still executes through whatever wallet/venue tooling
-you give it, and resolves live addresses and market ids itself. That is
-deliberate: stale addresses in a doc are how funds get lost.
+**Pair it with the venues' own kits.** For execution on Lighter, install
+[elliottech/lighter-agent-kit](https://github.com/elliottech/lighter-agent-kit) alongside this one —
+it owns the money path (including paper trading against live order books) while this kit covers what
+to do with it.
 
 ## Repository structure
 
 ```
-├── SKILL.md                     # agent entry point / contract
+├── SKILL.md                          # agent entry point, routing, safety rules
 ├── references/
-│   ├── CATALOG.md               # generated index of every card
-│   ├── card-format.md           # frontmatter & section schema
-│   ├── protocols/               # 73 protocol cards
-│   ├── strategies/              # 25 strategy archetype cards
-│   └── scanner/                 # the scanning method + per-venue modules
-├── scripts/
-│   └── build-catalog.mjs        # regenerates references/CATALOG.md
+│   ├── CATALOG.md                    # generated index of all 40 cards
+│   ├── card-format.md                # frontmatter & conventions
+│   ├── perpetuals/                   # Hyperliquid, Lighter — venue, data, fees, risk
+│   ├── prediction-markets/           # Polymarket, HIP-4 — venue, data, fees, risk
+│   └── quant/
+│       ├── data/                     # reading, sourcing, validating market data
+│       ├── indicators/               # the graded indicator toolkit
+│       ├── strategies/               # archetypes as specifications
+│       ├── execution/                # order placement and slippage
+│       ├── risk/                     # sizing and operational control
+│       ├── validation/               # backtesting and performance evaluation
+│       └── references.md             # bibliography
+├── scripts/build-catalog.mjs
 ├── install.sh
 ├── DISCLAIMER.md
 └── LICENSE
 ```
 
-## Card anatomy
+## Principles
 
-Every protocol card gives each action the same four-part treatment:
+- **The kit is knowledge, not keys.** No signer, no API client, no addresses, no market ids. Your
+  agent executes through whatever tooling you give it and resolves live identifiers itself. Stale
+  addresses in a doc are how funds get lost.
+- **Official docs are the source of truth for mechanics.** Every venue card links them and defers to
+  them. All three publish an `llms.txt` index and serve raw Markdown at `<page>.md`.
+- **Costs before signals.** Most strategies die on arithmetic, not on prediction. The kit computes the
+  arithmetic first.
+- **Honest about evidence.** Where a popular technique is not supported, the card says so and cites
+  why.
 
-```markdown
-## action: borrow
-**Function:** borrow(address asset, uint256 amount, uint256 interestRateMode, …)
-**Contract:** role `pool`
-**Use when:** drawing a loan against supplied collateral.
+## Contributing
 
-### params     — every argument, decimals/scaling rules, required values
-### pitfalls   — the mistakes that revert or lose money
-### safety     — binding invariants ("refuse" means refuse)
-```
-
-See [references/card-format.md](references/card-format.md) for the full
-schema, including how to read the Aspen-specific fields outside Aspen.
-
-## Contributing / regenerating
-
-Cards are the source of truth; the catalog is generated. After adding or
-editing a card:
+Cards are the source of truth; the catalog is generated.
 
 ```bash
 node scripts/build-catalog.mjs
@@ -143,10 +120,9 @@ node scripts/build-catalog.mjs
 
 ## Disclaimer
 
-**Trading is risky. Onchain transactions, borrows, and withdrawals are
-irreversible.** This kit is documentation, not financial advice, and it can be
-wrong or stale — verify against the protocol's official docs before moving
-funds. See [DISCLAIMER.md](DISCLAIMER.md).
+**Trading is risky. Orders, borrows and withdrawals are irreversible.** This kit is documentation, not
+financial advice, and it can be wrong or stale — verify against the venue's official docs before
+moving funds. See [DISCLAIMER.md](DISCLAIMER.md).
 
 ## License
 

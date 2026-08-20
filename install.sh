@@ -42,7 +42,21 @@ install_into() {
   local dest="$dest_root/$KIT_NAME"
   mkdir -p "$dest_root"
   if [[ -e "$dest" || -L "$dest" ]]; then
-    rm -rf "$dest"
+    if [[ -L "$dest" ]]; then
+      rm -f "$dest"
+    else
+      # Refuse to blow away a directory we did not create without consent.
+      if [[ ! -f "$dest/SKILL.md" ]] || ! grep -q '^name: aspen-agent-kit' "$dest/SKILL.md" 2>/dev/null; then
+        echo "refusing to overwrite $dest — it is not an aspen-agent-kit install" >&2
+        echo "remove it yourself, or pass --dir <path> to install elsewhere" >&2
+        return 1
+      fi
+      if [[ "$ALL" != true ]]; then
+        read -r -p "Replace existing install at $dest? [y/N] " ans
+        [[ "$ans" =~ ^[Yy] ]] || { echo "skipped $dest"; return 0; }
+      fi
+      rm -rf "$dest"
+    fi
   fi
   if [[ "$MODE" == "link" ]]; then
     ln -s "$SRC" "$dest"
